@@ -3,26 +3,41 @@
 {% block content %}
 <div class="container text-center">
     <form method="POST">
-        <div class="form-group">
+        {% csrf_token %}
+       
+        <div class="form-group"> <lenend class ="border-bottom mb-4">
+        
+        </legend> {{form}}
             <button href="" class="btn btn-outline-info" type="submit">
                 Select
             </button>
         </div>
-
+         {% if input %}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4"></legend>
             <div class="row">
+            <div class="col-md-4">
+                {{m_form.input}}
             </div>
 
+            <div class="col-md-4">      
+            {{m_form.measure1}}
+            </div>
+            
+            <div class="col-md-4">   
+                {{m_form.measure2}}
+            </div >
+            </div>
         </fieldset>
         <fieldset class="form-group">
-            answer
+            {{answer}}
         </fieldset>
         <div class="form-group">
             <button href="" class="btn btn-outline-info" type="submit">
                 Convert
             </button>
         </div>
+        {% endif %}
     </form>
 </div>
 

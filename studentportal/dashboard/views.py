@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.views import generic
 from youtubesearchpython import VideosSearch
 import requests
+import wikipedia
 
 def home(request):
     return render(request,'dashboard/home.html')
@@ -185,4 +186,82 @@ def dictionary(request):
         form = DashboardForm()
     
     return render(request,'dashboard/dictionary.html',locals())
+
+
+
+def wiki(request):
+    if request.method=='POST':
+        text = request.POST['text']
+        form = DashboardForm(request.POST)
+        search = wikipedia.page(text)
+        context={
+           'form':form,
+           'title':search.title,
+           'link':search.url,
+           'details':search.summary
+        }
+        return render(request,'dashboard/wiki.html',context)
+    else:
+        form = DashboardForm()
+    
+    return render(request,'dashboard/wiki.html',locals())
+
+
+def conversion(request):
+    if request.method == "POST":
+        form = ConversionForm(request.POST)
+        if request.POST['measurement'] == 'length':
+            measurement_form = ConversionLengthForm()
+            input =True
+            m_form=measurement_form
+            if'input' in request.POST:
+                first = request.POST['measure1']
+                second = request.POST['measure2']
+                input = request.POST['input']
+                answer = ''
+                if input and int(input) >= 0:
+                    if first == 'yard' and second =='foot':
+                        answer = f'{input} yard ={int(input)*3} foot'
+                    if first == 'foot' and second =='yard':
+                        answer = f'{input} foot ={int(input)*3} yard'
+                
+       
+        
+        if request.POST['measurement'] == 'mass':
+            measurement_form = ConversionMassForm()
+            input =True
+            m_form=measurement_form
+            if'input' in request.POST:
+                first = request.POST['measure1']
+                second = request.POST['measure2']
+                input = request.POST['input']
+                answer = ''
+                if input and int(input) >= 0:
+                    if first == 'pound' and second =='kilogram':
+                        answer = f'{input} pound ={int(input)*0.453592} kilogram'
+                    if first == 'kilogram' and second =='pound':
+                        answer = f'{input} kilogram ={int(input)*2.20462} pound'
+                
+       
+
+    else:
+        form = ConversionForm()
+        input = False
+    return render(request,'dashboard/conversion.html',locals())
+
+def register(request):
+    if request.method=="POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request,f"Account Created for {username}")
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request,'dashboard/register.html',locals())
+
+def login(request):
+    return render(request,'dashboard/login.html',locals())
+
 # Create your views here.
