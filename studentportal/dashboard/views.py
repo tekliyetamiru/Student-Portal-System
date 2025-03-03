@@ -5,11 +5,13 @@ from django.views import generic
 from youtubesearchpython import VideosSearch
 import requests
 import wikipedia
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def home(request):
     return render(request,'dashboard/home.html')
 
-
+@login_required
 def notes(request):
     if request.method == "POST":
         form = NotesForm(request.POST)
@@ -22,13 +24,17 @@ def notes(request):
     notes = Notes.objects.filter(user=request.user)
     context = {'notes':notes,'form':form}
     return render(request,'dashboard/notes.html',context)
+
+@login_required
 def delete_note(request,pk=None):
     Notes.objects.get(id=pk).delete()
     return redirect('notes')
 
+
 class NotesDetail(generic.DetailView):
     model=Notes
 
+@login_required
 def homework(request):
     if request.method == "POST":
         form = HomeworkForm(request.POST)
@@ -54,6 +60,7 @@ def homework(request):
         homework_done = False
     return render(request,'dashboard/homework.html',locals())
 
+@login_required
 def update_homework(request,pk=None):
     homework = Homework.objects.get(id=pk)
     if homework.is_finished == True:
@@ -64,6 +71,7 @@ def update_homework(request,pk=None):
     homework.save()
     return redirect('homework')
 
+@login_required
 def delete_homework(request,pk=None):
     Homework.objects.get(id=pk).delete()
     return redirect('homework')
@@ -100,7 +108,7 @@ def youtube(request):
 
     return render(request,'dashboard/youtube.html',{'form':form})
 
-
+@login_required
 def todo(request):
     if request.method == "POST":
         form = TodoForm(request.POST)
@@ -125,9 +133,12 @@ def todo(request):
         todos_done = False
     return render(request,'dashboard/todo.html',locals())
 
+@login_required
 def delete_todo(request,pk=None):
     Todo.objects.get(id=pk).delete()
     return redirect('todo')
+
+@login_required
 def update_todo(request,pk=None):
     data = Todo.objects.get(id=pk)
     if data.is_finished == True:
@@ -249,6 +260,7 @@ def conversion(request):
         input = False
     return render(request,'dashboard/conversion.html',locals())
 
+
 def register(request):
     if request.method=="POST":
         form = UserCreationForm(request.POST)
@@ -264,4 +276,19 @@ def register(request):
 def login(request):
     return render(request,'dashboard/login.html',locals())
 
+@login_required
+def profile(request):
+    homeworks =Homework.objects.filter(is_finished=False,user=request.user)
+    todos =Todo.objects.filter(is_finished =False,user=request.user)
+    if len(homeworks) == 0:
+        homework_done =True
+    else:
+        homework_done =False 
+    if len(todos) == 0:
+        todos_done =True
+    else:
+        todos_done =False
+    print('Todos : ',todos,
+    'homewords',homework_done,"todos",todos_done)
+    return render(request,'dashboard/profile.html',locals())
 # Create your views here.
